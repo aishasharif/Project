@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 2 # 3 Pods should exist at all times.
+  selector:  # Pods label should be defined in ReplicaSet label selector
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      name: myapp
+      labels:
+        app: myapp # Atleast 1 Pod label should match with ReplicaSet Label Selector
+    spec:
+      containers:
+      - name: myapp
+        image: us-west1-docker.pkg.dev/savvy-fountain-448721-d1/hello-repo/hello-app:v1
+        ports:
+          - containerPort: 80
+        resources:
+          requests:
+            cpu: "500m"   # 0.5 CPU (specify the amount of CPU your container will initially request)
+            memory: "512Mi"  # 512 MiB of memory (specify the initial memory request)
+          limits:
+            cpu: "1"       # Maximum of 1 CPU
+            memory: "1Gi" 
+      imagePullSecrets:
+         - name: gcp-artifact-registry
