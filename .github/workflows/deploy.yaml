@@ -52,7 +52,7 @@ jobs:
         run: |
           IMAGE_NAME=my-app
           VERSION=$(git rev-parse --short HEAD)
-          helm upgrade --install my-release ../../webapp/helm/python-app \
+          helm upgrade --install my-release webapp/helm/python-app \
             --set image.repository=${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME \
             --set image.tag=$VERSION \
             --namespace default
