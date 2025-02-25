@@ -20,15 +20,21 @@ jobs:
 
       - name: Configure Docker to Use Artifact Registry
         run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
-
+      
+      - name: Debug VERSION
+        run: |
+          VERSION=$(git rev-parse --short HEAD)
+          echo "Version: $VERSION"
+      
       - name: Build and Push Image
         run: |
           IMAGE_NAME=my-app
-          VERSION=latest
+          VERSION=$(git rev-parse --short HEAD)
           docker buildx create --use
           docker buildx build --platform linux/amd64 -f webapp/src/Dockerfile -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION webapp/src
           docker push ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION
-   
+      
+
    
   deploy:
     name: Deploy to GKE
