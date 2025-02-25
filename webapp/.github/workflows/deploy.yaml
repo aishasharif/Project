@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build & Push Docker Image
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
    
   deploy:
     name: Deploy to GKE
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build
     steps:
       - name: Checkout Code
