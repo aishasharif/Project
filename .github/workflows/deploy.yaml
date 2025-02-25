@@ -37,12 +37,10 @@ jobs:
       - name: Build and Push Image
         run: |
           IMAGE_NAME=my-app
-          VERSION=$(git rev-parse --short HEAD)
           docker buildx create --use
-          docker buildx build --platform linux/amd64 -f webapp/src/Dockerfile -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION --push webapp/src
-          docker push ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION
+          docker buildx build --platform linux/amd64 -f webapp/src/Dockerfile -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:latest webapp/src --push 
+          docker push ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:latest
       
-
    
   deploy:
     name: Deploy to GKE
@@ -66,8 +64,7 @@ jobs:
       - name: Deploy Helm Chart
         run: |
           IMAGE_NAME=my-app
-          VERSION=latest
           helm upgrade --install my-release webapp/helm/python-app \
             --set image.repository=${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME \
-            --set image.tag=$VERSION \
+            --set image.tag=latest \
             --namespace default
