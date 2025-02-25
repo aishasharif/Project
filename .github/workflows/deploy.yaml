@@ -25,7 +25,7 @@ jobs:
         run: |
           IMAGE_NAME=my-app
           VERSION=$(git rev-parse --short HEAD)
-          docker build -f webapp/src/Dockerfile -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION /webapp/src
+          docker build -f webapp/src/Dockerfile -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION webapp/src
           docker push ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION
    
    
