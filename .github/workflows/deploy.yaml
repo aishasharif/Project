@@ -21,12 +21,6 @@ jobs:
       - name: Configure Docker to Use Artifact Registry
         run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
 
-      - name: Extract Commit SHA
-        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-      - name: Debug Commit SHA
-        run: echo "Commit SHA: $COMMIT_SHA"
-
       - name: Create and Use Buildx Builder
         run: |
           if ! docker buildx ls | grep -q 'default'; then
@@ -38,8 +32,9 @@ jobs:
       - name: Build and Push Image
         run: |
           IMAGE_NAME=my-app
+          VERSION=$(git rev-parse --short HEAD)
           docker buildx build --platform linux/amd64 -f webapp/src/Dockerfile \
-            -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$COMMIT_SHA \
+            -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION \
             webapp/src --push
 
   deploy:
@@ -58,16 +53,14 @@ jobs:
       - name: Get GKE Credentials
         run: gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.REGION }} --project ${{ secrets.PROJECT_ID }}
 
-      - name: Extract Commit SHA
-        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
       - name: Install Helm
         uses: azure/setup-helm@v3
 
       - name: Deploy Helm Chart
         run: |
           IMAGE_NAME=my-app
+          VERSION=$(git rev-parse --short HEAD)
           helm upgrade --install my-release webapp/helm/python-app \
             --set image.repository=${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME \
-            --set image.tag=$COMMIT_SHA \
+            --set image.tag=$VERSION \
             --namespace default
