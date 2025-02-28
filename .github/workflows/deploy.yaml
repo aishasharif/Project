@@ -37,10 +37,24 @@ jobs:
             -t ${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME:$VERSION \
             webapp/src --push
 
+
+  sonarqube:
+    name: SonarQube
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   deploy:
     name: Deploy to GKE
     runs-on: self-hosted
-    needs: build
+    needs: sonarqube
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
