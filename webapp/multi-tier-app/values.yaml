@@ -17,6 +17,9 @@ database:
     postgresqlUsername: user
     postgresqlPassword: password
     postgresqlDatabase: mydb
+    image:
+      repository: bitnami/postgresql
+      tag: 16.0.1 
 
 
 replicaCount: 1
