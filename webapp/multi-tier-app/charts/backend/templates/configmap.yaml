@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  server.js: |
+    const express = require('express');
+    const { Client } = require('pg');
+    const app = express();
+    const port = 3000;
+
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL,
+    });
+
+    client.connect();
+
+    app.get('/', async (req, res) => {
+      const result = await client.query('SELECT message FROM greetings LIMIT 1');
+      res.send(result.rows[0].message || 'Hello, World!');
+    });
+
+    app.listen(port, () => {
+      console.log(`Backend listening at http://localhost:${port}`);
+    });
