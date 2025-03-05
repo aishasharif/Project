@@ -1,11 +1,11 @@
 frontend:
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: us-west1-docker.pkg.dev/savvy-fountain-448721-d1/hello-repo/my-app
     tag: latest
 
 backend:
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: node
     tag: 14
