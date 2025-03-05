@@ -80,3 +80,12 @@ jobs:
             --set image.repository=${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME \
             --set image.tag=$VERSION \
             --namespace default
+
+      - name: Deploy Multi Tier Helm Chart
+        run: |
+          IMAGE_NAME=my-app
+          VERSION=$(git rev-parse --short HEAD)
+          helm upgrade --install Multi-tier webapp/multi-tier-app \
+            --set image.repository=${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPO_NAME }}/$IMAGE_NAME \
+            --set image.tag=$VERSION \
+            --namespace default
