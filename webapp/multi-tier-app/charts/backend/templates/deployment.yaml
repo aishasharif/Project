@@ -48,9 +48,6 @@ spec:
           env:
             - name: DATABASE_URL
               value: "postgres://user:password@postgres:5432/mydb"
-          volumeMounts:
-            - name: backend-volume
-              mountPath: /app
           command: ["node", "/app/server.js"]
           livenessProbe:
             {{- toYaml . | nindent 12 }}
