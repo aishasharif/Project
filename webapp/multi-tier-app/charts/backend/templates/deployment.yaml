@@ -16,5 +16,6 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
+        {{- with .Values.securityContext }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: ["sleep", "100000"]
