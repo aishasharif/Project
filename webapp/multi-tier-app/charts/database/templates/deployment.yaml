@@ -1,84 +1,145 @@
-apiVersion: apps/v1
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: {{ include "database.fullname" . }}
+#   labels:
+#     {{- include "database.labels" . | nindent 4 }}
+# spec:
+#   {{- if not .Values.autoscaling.enabled }}
+#   replicas: {{ .Values.replicaCount }}
+#   {{- end }}
+#   selector:
+#     matchLabels:
+#       {{- include "database.selectorLabels" . | nindent 6 }}
+#   template:
+#     metadata:
+#       {{- with .Values.podAnnotations }}
+#       annotations:
+#         {{- toYaml . | nindent 8 }}
+#       {{- end }}
+#       labels:
+#         {{- include "database.labels" . | nindent 8 }}
+#         {{- with .Values.podLabels }}
+#         {{- toYaml . | nindent 8 }}
+#         {{- end }}
+#     spec:
+#       {{- with .Values.imagePullSecrets }}
+#       imagePullSecrets:
+#         {{- toYaml . | nindent 8 }}
+#       {{- end }}
+#       serviceAccountName: {{ include "database.serviceAccountName" . }}
+#       {{- with .Values.podSecurityContext }}
+#       securityContext:
+#         {{- toYaml . | nindent 8 }}
+#       {{- end }}
+#       containers:
+#         - name: {{ .Chart.Name }}
+#           {{- with .Values.securityContext }}
+#           securityContext:
+#             {{- toYaml . | nindent 12 }}
+#           {{- end }}
+#           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+#           imagePullPolicy: {{ .Values.image.pullPolicy }}
+#           env:
+#             - name: POSTGRES_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgres-password
+#                   key: password
+#           ports:
+#             - name: http
+#               containerPort: {{ .Values.service.port }}
+#               protocol: TCP
+#           {{- with .Values.livenessProbe }}
+#           livenessProbe:
+#             {{- toYaml . | nindent 12 }}
+#           {{- end }}
+#           {{- with .Values.readinessProbe }}
+#           readinessProbe:
+#             {{- toYaml . | nindent 12 }}
+#           {{- end }}
+#           {{- with .Values.resources }}
+#           resources:
+#             {{- toYaml . | nindent 12 }}
+#           {{- end }}
+#           {{- with .Values.volumeMounts }}
+#           volumeMounts:
+#             {{- toYaml . | nindent 12 }}
+#           {{- end }}
+#       {{- with .Values.volumes }}
+#       volumes:
+#         {{- toYaml . | nindent 8 }}
+#       {{- end }}
+#       {{- with .Values.nodeSelector }}
+#       nodeSelector:
+#         {{- toYaml . | nindent 8 }}
+#       {{- end }}
+#       {{- with .Values.affinity }}
+#       affinity:
+#         {{- toYaml . | nindent 8 }}
+#       {{- end }}
+#       {{- with .Values.tolerations }}
+#       tolerations:
+#         {{- toYaml . | nindent 8 }}
+#       {{- end }}
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv-volume  # Sets PV's name
+  labels:
+    type: local  # Sets PV's type to local
+    app: postgres-db
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi # Sets PV Volume
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pv-claim  # Sets name of PVC
+  labels:
+    app: postgres-db
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany  # Sets read and write access
+  resources:
+    requests:
+      storage: 5Gi  
+---
+piVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "database.fullname" . }}
-  labels:
-    {{- include "database.labels" . | nindent 4 }}
+  name: postgres-db-deployment  # Sets Deployment name
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "database.selectorLabels" . | nindent 6 }}
+      app: postgres-db
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "database.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app: postgres-db
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "database.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-password
-                  key: password
+        - name: postgres-db
+          image: postgres:10.1 # Sets Image
+          imagePullPolicy: "IfNotPresent"
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
+            - containerPort: 5432  # Exposes container port
+          envFrom:
+            - configMapRef: # Maps env variable from ConfigMap
+                name: postgres-config
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-volume
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: postgres-volume
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim # Maps claim from PersistantVolumeClaim

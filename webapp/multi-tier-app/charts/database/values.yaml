@@ -122,7 +122,4 @@ tolerations: []
 
 affinity: {}
 
-postgresql:
-  postgresqlUsername: user
-  postgresqlPassword: password
-  postgresqlDatabase: mydb
+

@@ -12,14 +12,8 @@ backend:
   env:
     DATABASE_URL: "postgres://user:password@postgres:5432/mydb"
 
-database:
-  postgresql:
-    postgresqlUsername: user
-    postgresqlPassword: password
-    postgresqlDatabase: mydb
-    image:
-      repository: bitnami/postgresql
-      tag: 16.0.1 
+
+
 
 
 replicaCount: 1
