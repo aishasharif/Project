@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "nodejs-app.fullname" . }}
+  name: {{ include "backend.fullname" . }}
   labels:
-    {{- include "nodejs-app.labels" . | nindent 4 }}
+    {{- include "backend.fullname" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      app: {{ include "nodejs-app.name" . }}
+      app: {{ include "backend.fullname" . }}
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ include "nodejs-app.name" . }}
+        app: {{ include "backend.fullname". }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
