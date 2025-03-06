@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "backend.fullname" . }}
   labels:
-    {{- include "backend.fullname" . | nindent 4 }}
+    {{- include "backend.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
@@ -16,6 +16,9 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-        {{- with .Values.securityContext }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: ["sleep", "100000"]
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
